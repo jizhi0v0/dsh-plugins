@@ -1,0 +1,31 @@
+{
+  "name": "dsh-claude-memory",
+  "version": "0.1.4",
+  "private": true,
+  "type": "module",
+  "description": "让 DSH 列出、搜索并读取 Claude Code 的记忆（auto memory、CLAUDE.md、rules）。 · Lets DSH list, search and read Claude Code memory (auto memory, CLAUDE.md, rules).",
+  "icon": "icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jizhi0v0/dsh-plugins.git",
+    "directory": "packages/claude-memory"
+  },
+  "homepage": "https://github.com/jizhi0v0/dsh-plugins/tree/main/packages/claude-memory"
+}

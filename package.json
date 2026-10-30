@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A collection of DeepSeek Harness (DSH) plugins.",
   "scripts": {
-    "check": "node --check packages/deepseek-balance/index.js && node --check packages/deepseek-balance/client.js",
-    "test": "node --test packages/deepseek-balance/test/*.test.mjs"
+    "check": "node --check packages/deepseek-balance/index.js && node --check packages/deepseek-balance/client.js && node --check packages/claude-memory/index.js",
+    "test": "node --test packages/deepseek-balance/test/*.test.mjs packages/claude-memory/test/*.test.mjs"
   }
 }

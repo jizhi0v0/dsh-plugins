@@ -9,6 +9,7 @@ GitHub：<https://github.com/jizhi0v0/dsh-plugins>
 | 插件 | 说明 | 直接安装 spec |
 |---|---|---|
 | [DeepSeek 官方 API 余额](packages/deepseek-balance/README.md) | 在输入框下方显示 DeepSeek 官方 API 的账户余额、可用状态，并支持在插件卡片内配置 API Key。 | `https://github.com/jizhi0v0/dsh-plugins.git#path:/packages/deepseek-balance` |
+| [Claude 记忆](packages/claude-memory/README.md) | 让 DSH 列出、搜索、读取 Claude Code 的记忆（项目 auto memory、用户级 CLAUDE.md 与 rules）。 | `https://github.com/jizhi0v0/dsh-plugins.git#path:/packages/claude-memory` |
 
 ## 安装
 

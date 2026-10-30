@@ -1,0 +1,4 @@
+# dsh bundle patch: inserts the Claude-memory reader into the profile.
+- insert:
+    - id: claude-memory
+      name: 'dsh-claude-memory'
