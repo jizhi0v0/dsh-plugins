@@ -1,0 +1,4 @@
+# dsh bundle patch: inserts the DeepSeek balance widget into the profile.
+- insert:
+    - id: deepseek-balance
+      name: 'dsh-deepseek-balance'
