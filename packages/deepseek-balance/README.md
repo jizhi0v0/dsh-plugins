@@ -38,10 +38,10 @@ DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo �
    github:jizhi0v0/dsh-plugins#path:/packages/deepseek-balance
    ```
 
-   需要固定版本时，用 tag + path（v0.1.1 已打 tag）：
+   需要固定版本时，用 tag + path（v0.1.2 已打 tag）：
 
    ```text
-   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.1&path:/packages/deepseek-balance
+   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.2&path:/packages/deepseek-balance
    ```
 
 3. 安装完成后点击 **Enable now**（或打开插件的开关）。

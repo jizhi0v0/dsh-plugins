@@ -140,7 +140,7 @@ window.__ModuleLoader__.load({
 .dsb-icon:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}
 .dsb-icon:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:2px}
 .dsb-icon:disabled{opacity:.45;cursor:default}
-.dsb-popover{position:absolute;right:0;z-index:30;width:min(340px,calc(100vw - 32px));max-width:100%;isolation:isolate}
+.dsb-popover{position:absolute;right:0;z-index:30;width:min(440px,calc(100vw - 24px));isolation:isolate}
 .dsb-popover.dsb-up{bottom:calc(100% + 8px)}
 .dsb-popover.dsb-down{top:calc(100% + 8px)}
 .dsb-popover::after{content:"";position:absolute;right:14px;width:12px;height:12px;background:var(--dsw-specific-menu,var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)));border:1px solid var(--dsw-alias-border-l1);transform:rotate(45deg);pointer-events:none;z-index:-1}
@@ -148,14 +148,15 @@ window.__ModuleLoader__.load({
 .dsb-popover.dsb-down::after{top:-7px;border-right:0;border-bottom:0}
 .dsb-card{box-sizing:border-box;width:100%;overflow:auto;background:var(--dsw-specific-menu,var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)));border:1px solid var(--dsw-alias-border-l1);border-radius:12px;box-shadow:var(--dsw-elevation-panel,0 8px 28px rgba(0,0,0,.14));padding:12px;color:var(--dsw-alias-label-primary)}
 .dsb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.dsb-titleWrap{display:flex;flex-direction:column;gap:2px;min-width:0}
-.dsb-title{font-size:13px;font-weight:600}
+.dsb-titleWrap{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
+.dsb-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dsb-subtitle{font-size:11px;color:var(--dsw-alias-label-tertiary)}
 .dsb-close{width:24px;height:24px;display:grid;place-items:center;flex:none;border:none;border-radius:999px;background:transparent;color:var(--dsw-alias-label-tertiary);font-size:16px;line-height:1;cursor:pointer;padding:0}
 .dsb-close:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}
 .dsb-close:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:2px}
-.dsb-statusRow{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--dsw-alias-label-secondary)}
-.dsb-muted{margin-left:auto;font-size:11px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;padding-left:8px}
+.dsb-statusRow{display:flex;align-items:center;flex-wrap:wrap;row-gap:2px;gap:6px;margin-top:10px;font-size:12px;color:var(--dsw-alias-label-secondary)}
+.dsb-statusText{white-space:nowrap}
+.dsb-muted{margin-left:auto;font-size:11px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;padding-left:8px;flex:none}
 .dsb-error{margin-top:8px;padding:7px 8px;border-radius:8px;background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base));border-left:3px solid var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-secondary);font-size:11px;line-height:1.45;overflow-wrap:anywhere}
 .dsb-empty{margin-top:10px;font-size:12px;color:var(--dsw-alias-label-tertiary)}
 .dsb-balances{margin-top:10px;display:flex;flex-direction:column;gap:8px}
@@ -185,6 +186,16 @@ window.__ModuleLoader__.load({
 .dsb-foot{margin-top:10px;padding-top:8px;border-top:1px solid var(--dsw-alias-border-l1);font-size:10px;color:var(--dsw-alias-label-tertiary);line-height:1.4}
 .dsb-spin{animation:dsb-spin 1s linear infinite}
 @keyframes dsb-spin{to{transform:rotate(360deg)}}
+@media (max-width:480px){
+.dsb-card{padding:10px}
+.dsb-head{gap:6px}
+.dsb-subtitle{font-size:10px}
+.dsb-balanceRow{padding:7px 9px}
+.dsb-amount{font-size:17px}
+.dsb-breakdown{gap:8px}
+.dsb-btn{padding:0 8px}
+.dsb-foot{font-size:9.5px}
+}
 @media (prefers-reduced-motion: reduce){.dsb-spin{animation:none}}
 `;
 
@@ -419,7 +430,7 @@ window.__ModuleLoader__.load({
       const inFlight = useRef(false);
       const noticeTimer = useRef(null);
       const rootRef = useRef(null);
-      const [popover, setPopover] = useState({ placement: 'down', maxHeight: 460 });
+      const [popover, setPopover] = useState({ placement: 'down', maxHeight: 460, maxWidth: 440 });
 
       /** Pick the side with more room so a bottom composer opens upward. */
       const updatePopover = useCallback(() => {
@@ -432,6 +443,8 @@ window.__ModuleLoader__.load({
         setPopover({
           placement,
           maxHeight: Math.max(220, Math.min(460, available)),
+          // Never let the right-anchored panel run off the left of the viewport.
+          maxWidth: Math.max(200, Math.min(440, viewport - 24, rect.right - 12)),
         });
       }, []);
 
@@ -702,6 +715,7 @@ window.__ModuleLoader__.load({
               {
                 key: 'popover',
                 className: `dsb-popover dsb-${popover.placement}`,
+                style: { maxWidth: popover.maxWidth },
               },
               h(
                 'div',
