@@ -48,6 +48,24 @@ DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo �
 4. 回到任意已发送过消息的会话。输入框下方应出现 `DeepSeek` 状态条；如果还没有出现，刷新页面或重启 DSH。
 5. 点击状态条右侧的齿轮，粘贴 API Key，点 **保存**。Key 可以在 [DeepSeek 开放平台](https://platform.deepseek.com/api_keys) 创建。
 
+### 更新已安装的插件
+
+第三方 Git 插件没有官方插件卡片上的 **Update** 按钮；而且在开启了 HMR 的 profile 里，直接用同一个包名再安装会被 `already-installed` 拒绝。更新流程是：
+
+1. Plugins 页面找到 **DeepSeek 官方 API 余额**，点 **Remove / 卸载**
+2. 点 **Add plugin**，粘贴新的 tag URL，例如：
+
+   ```text
+   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.2&path:/packages/deepseek-balance
+   ```
+
+3. 安装后点 **Enable now**
+4. 刷新页面；如果 Host 端代码没有热替换，重启 DSH
+
+卸载只会移除包和 bundle 行，不会删除 `~/.dsh/deepseek-balance/config.json`，所以重新装好后 API Key 还在，不需要重新填写。
+
+如果插件卡片/详情里显示的版本仍是旧的，说明新包没有装上；可以确认版本号是否为 `0.1.2`。
+
 ### 本地路径安装（开发时）
 
 如果正在改这个插件，直接安装本地目录，插件管理器会以 `link:` 方式链接，改完刷新即可：

@@ -20,6 +20,10 @@ DSH 的插件安装底层用 pnpm，`#path:` 是 pnpm 安装 Git monorepo 子目
 https://github.com/jizhi0v0/dsh-plugins.git#v0.1.2&path:/packages/deepseek-balance
 ```
 
+## 更新
+
+第三方 Git 插件没有 Update 按钮；HMR 开启时也不能同包名覆盖安装。更新时先在 Plugins 里 **Remove**，再用新的 tag spec **Add plugin**，最后 **Enable now** 并刷新/重启 DSH。卸载不会删除插件的 Key 配置文件。
+
 ## 开发
 
 ```bash
