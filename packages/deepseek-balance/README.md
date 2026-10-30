@@ -38,15 +38,15 @@ DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo �
    github:jizhi0v0/dsh-plugins#path:/packages/deepseek-balance
    ```
 
-   需要固定版本时，用 tag + path（v0.1.2 已打 tag）：
+   需要固定版本时，用 tag + path（v0.1.3 已打 tag）：
 
    ```text
-   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.2&path:/packages/deepseek-balance
+   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.3&path:/packages/deepseek-balance
    ```
 
 3. 安装完成后点击 **Enable now**（或打开插件的开关）。
 4. 回到任意已发送过消息的会话。输入框下方应出现 `DeepSeek` 状态条；如果还没有出现，刷新页面或重启 DSH。
-5. 点击状态条右侧的齿轮，粘贴 API Key，点 **保存**。Key 可以在 [DeepSeek 开放平台](https://platform.deepseek.com/api_keys) 创建。
+5. 点击状态条打开卡片，再点卡片里的 **Settings / 设置**，粘贴 API Key，点 **保存**。Key 可以在 [DeepSeek 开放平台](https://platform.deepseek.com/api_keys) 创建。
 
 ### 更新已安装的插件
 
@@ -56,7 +56,7 @@ DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo �
 2. 点 **Add plugin**，粘贴新的 tag URL，例如：
 
    ```text
-   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.2&path:/packages/deepseek-balance
+   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.3&path:/packages/deepseek-balance
    ```
 
 3. 安装后点 **Enable now**
@@ -64,7 +64,7 @@ DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo �
 
 卸载只会移除包和 bundle 行，不会删除 `~/.dsh/deepseek-balance/config.json`，所以重新装好后 API Key 还在，不需要重新填写。
 
-如果插件卡片/详情里显示的版本仍是旧的，说明新包没有装上；可以确认版本号是否为 `0.1.2`。
+如果插件卡片/详情里显示的版本仍是旧的，说明新包没有装上；可以确认版本号是否为 `0.1.3`。
 
 ### 本地路径安装（开发时）
 
@@ -89,7 +89,7 @@ install_bundle
 
 - **状态条**：显示 DeepSeek 标识、主要余额（优先 CNY）和可用状态圆点。
 - **刷新按钮**：立即请求一次余额，绕过 Host 的 15 秒缓存。
-- **齿轮**：展开卡片并直接进入设置区域。
+- **点击状态条**：打开卡片；卡片内 **Settings / 设置** 进入 Key 配置。状态条右侧只保留刷新按钮。
 - **API Key**：只提交给 DSH Host；浏览器端不会再次读回完整 Key，只显示末四位。
 - **自动刷新**：保存在浏览器 `localStorage` 的 `dsh-deepseek-balance.refreshMs`，只影响刷新频率，不影响 Key。
 
