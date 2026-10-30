@@ -18,26 +18,50 @@
 
 ## 安装
 
-### 通过 DSH 插件管理器（推荐）
+GitHub 仓库：<https://github.com/jizhi0v0/dsh-plugins>
+
+### 通过 GitHub 直接安装（推荐）
+
+DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo 的子目录，所以不需要把插件单独拆一个仓库。
 
 1. 打开 DSH Web，侧边栏进入 **Plugins**（插件）页面。
-2. 点击 **Add plugin**（添加插件），在输入框中粘贴本仓库的**绝对路径**：
+2. 点击 **Add plugin**（添加插件），粘贴：
 
    ```text
-   /Users/bobby/Developer/github/dsh-plugins/packages/deepseek-balance
+   https://github.com/jizhi0v0/dsh-plugins.git#path:/packages/deepseek-balance
    ```
 
-   这是一个完整的 DSH bundle：`package.json` 里的 `dsh.bundle.patch` 会插入 `deepseek-balance` 这一行，`dsh.client` 会把浏览器端模块挂到 `conversation.composer.dock`。
+   或等价的 pnpm/GitHub 简写：
+
+   ```text
+   github:jizhi0v0/dsh-plugins#path:/packages/deepseek-balance
+   ```
+
+   需要固定版本时，用 tag + path（v0.1.0 已打 tag）：
+
+   ```text
+   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.0&path:/packages/deepseek-balance
+   ```
 
 3. 安装完成后点击 **Enable now**（或打开插件的开关）。
 4. 回到任意已发送过消息的会话。输入框下方应出现 `DeepSeek` 状态条；如果还没有出现，刷新页面或重启 DSH。
 5. 点击状态条右侧的齿轮，粘贴 API Key，点 **保存**。Key 可以在 [DeepSeek 开放平台](https://platform.deepseek.com/api_keys) 创建。
 
+### 本地路径安装（开发时）
+
+如果正在改这个插件，直接安装本地目录，插件管理器会以 `link:` 方式链接，改完刷新即可：
+
+```text
+/Users/bobby/Developer/github/dsh-plugins/packages/deepseek-balance
+```
+
 ### 通过 Creator 模式的 `plugin_manager` 工具
+
+`install_bundle` 的 `target` 用上面的 GitHub spec 或本地绝对路径都可以：
 
 ```text
 install_bundle
-  target: /Users/bobby/Developer/github/dsh-plugins/packages/deepseek-balance
+  target: https://github.com/jizhi0v0/dsh-plugins.git#path:/packages/deepseek-balance
 ```
 
 安装后读取返回的 `application` 字段；只有 `applied` 才表示已经在运行中的 composition 里生效。

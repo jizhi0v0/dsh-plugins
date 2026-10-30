@@ -31,5 +31,11 @@
         "@deepseek-ai/dsh-client-ui-conversation"
       ]
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jizhi0v0/dsh-plugins.git",
+    "directory": "packages/deepseek-balance"
+  },
+  "homepage": "https://github.com/jizhi0v0/dsh-plugins/tree/main/packages/deepseek-balance"
 }

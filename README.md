@@ -2,11 +2,23 @@
 
 DeepSeek Harness（DSH）插件集合。
 
+GitHub：<https://github.com/jizhi0v0/dsh-plugins>
+
 ## 插件
 
-| 插件 | 说明 | 位置 |
+| 插件 | 说明 | 直接安装 spec |
 |---|---|---|
-| [DeepSeek 官方 API 余额](packages/deepseek-balance/README.md) | 在输入框下方显示 DeepSeek 官方 API 的账户余额、可用状态，并支持在插件卡片内配置 API Key。 | `packages/deepseek-balance` |
+| [DeepSeek 官方 API 余额](packages/deepseek-balance/README.md) | 在输入框下方显示 DeepSeek 官方 API 的账户余额、可用状态，并支持在插件卡片内配置 API Key。 | `https://github.com/jizhi0v0/dsh-plugins.git#path:/packages/deepseek-balance` |
+
+## 安装
+
+DSH → **Plugins** → **Add plugin**，粘贴上表的 spec，安装后点 **Enable now**。
+
+DSH 的插件安装底层用 pnpm，`#path:` 是 pnpm 安装 Git monorepo 子目录的语法。固定版本可以写成：
+
+```text
+https://github.com/jizhi0v0/dsh-plugins.git#v0.1.0&path:/packages/deepseek-balance
+```
 
 ## 开发
 
