@@ -14,6 +14,7 @@
   - 错误原因（Key 无效、限流、网络不通、超时等）
 - 在卡片内填写、替换、清除 API Key。
 - 自动刷新间隔可选 30 秒 / 1 分钟 / 5 分钟 / 15 分钟 / 关闭。
+- 卡片是浮层：上方空间够就向上展开，否则向下；不推挤输入框，点击外部或按 Esc 关闭。
 - 中英文界面跟随 DSH 的语言设置。
 
 ## 安装
@@ -37,10 +38,10 @@ DSH 的插件安装底层使用 pnpm，pnpm 支持用 `#path:` 安装 monorepo �
    github:jizhi0v0/dsh-plugins#path:/packages/deepseek-balance
    ```
 
-   需要固定版本时，用 tag + path（v0.1.0 已打 tag）：
+   需要固定版本时，用 tag + path（v0.1.1 已打 tag）：
 
    ```text
-   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.0&path:/packages/deepseek-balance
+   https://github.com/jizhi0v0/dsh-plugins.git#v0.1.1&path:/packages/deepseek-balance
    ```
 
 3. 安装完成后点击 **Enable now**（或打开插件的开关）。

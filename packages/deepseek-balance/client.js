@@ -126,7 +126,7 @@ window.__ModuleLoader__.load({
     };
 
     const CSS = `
-.dsb-root{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:4px 0 0;font-family:inherit;line-height:1.4}
+.dsb-root{position:relative;display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:4px 0 0;font-family:inherit;line-height:1.4}
 .dsb-bar{display:flex;align-items:center;gap:2px}
 .dsb-pill{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 10px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base));color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1;cursor:pointer;white-space:nowrap;transition:background .12s ease,border-color .12s ease}
 .dsb-pill:hover{background:var(--dsw-alias-interactive-bg-hover)}
@@ -140,7 +140,13 @@ window.__ModuleLoader__.load({
 .dsb-icon:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}
 .dsb-icon:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary);outline-offset:2px}
 .dsb-icon:disabled{opacity:.45;cursor:default}
-.dsb-card{box-sizing:border-box;width:min(340px,calc(100vw - 32px));max-width:100%;max-height:min(60vh,460px);overflow:auto;background:var(--dsw-specific-menu,var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)));border:1px solid var(--dsw-alias-border-l1);border-radius:12px;box-shadow:var(--dsw-elevation-panel,0 8px 28px rgba(0,0,0,.14));padding:12px;color:var(--dsw-alias-label-primary)}
+.dsb-popover{position:absolute;right:0;z-index:30;width:min(340px,calc(100vw - 32px));max-width:100%;isolation:isolate}
+.dsb-popover.dsb-up{bottom:calc(100% + 8px)}
+.dsb-popover.dsb-down{top:calc(100% + 8px)}
+.dsb-popover::after{content:"";position:absolute;right:14px;width:12px;height:12px;background:var(--dsw-specific-menu,var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)));border:1px solid var(--dsw-alias-border-l1);transform:rotate(45deg);pointer-events:none;z-index:-1}
+.dsb-popover.dsb-up::after{bottom:-7px;border-top:0;border-left:0}
+.dsb-popover.dsb-down::after{top:-7px;border-right:0;border-bottom:0}
+.dsb-card{box-sizing:border-box;width:100%;overflow:auto;background:var(--dsw-specific-menu,var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)));border:1px solid var(--dsw-alias-border-l1);border-radius:12px;box-shadow:var(--dsw-elevation-panel,0 8px 28px rgba(0,0,0,.14));padding:12px;color:var(--dsw-alias-label-primary)}
 .dsb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .dsb-titleWrap{display:flex;flex-direction:column;gap:2px;min-width:0}
 .dsb-title{font-size:13px;font-weight:600}
@@ -412,6 +418,22 @@ window.__ModuleLoader__.load({
       const alive = useRef(true);
       const inFlight = useRef(false);
       const noticeTimer = useRef(null);
+      const rootRef = useRef(null);
+      const [popover, setPopover] = useState({ placement: 'down', maxHeight: 460 });
+
+      /** Pick the side with more room so a bottom composer opens upward. */
+      const updatePopover = useCallback(() => {
+        const element = rootRef.current;
+        if (!element) return;
+        const rect = element.getBoundingClientRect();
+        const viewport = window.innerHeight || document.documentElement.clientHeight || 800;
+        const placement = rect.top > viewport / 2 ? 'up' : 'down';
+        const available = placement === 'up' ? rect.top - 16 : viewport - rect.bottom - 16;
+        setPopover({
+          placement,
+          maxHeight: Math.max(220, Math.min(460, available)),
+        });
+      }, []);
 
       useEffect(() => {
         alive.current = true;
@@ -477,6 +499,26 @@ window.__ModuleLoader__.load({
         return () => window.removeEventListener('keydown', onKeyDown);
       }, [open]);
 
+      useEffect(() => {
+        if (!open) return undefined;
+        updatePopover();
+        const onResize = () => updatePopover();
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+      }, [open, updatePopover]);
+
+      useEffect(() => {
+        if (!open) return undefined;
+        const onPointerDown = (event) => {
+          if (rootRef.current && !rootRef.current.contains(event.target)) {
+            setOpen(false);
+            setSettingsOpen(false);
+          }
+        };
+        document.addEventListener('pointerdown', onPointerDown, true);
+        return () => document.removeEventListener('pointerdown', onPointerDown, true);
+      }, [open]);
+
       const data = state.data;
       const configured = data?.configured === true;
       const available = data?.isAvailable;
@@ -535,6 +577,7 @@ window.__ModuleLoader__.load({
       }
 
       function openCard(settings) {
+        updatePopover();
         setOpen(true);
         if (settings || state.phase === 'unconfigured') setSettingsOpen(true);
       }
@@ -603,7 +646,7 @@ window.__ModuleLoader__.load({
 
       return h(
         'div',
-        { className: 'dsb-root' },
+        { className: 'dsb-root', ref: rootRef },
         h('style', { key: 'style' }, CSS),
         h(
           'div',
@@ -657,12 +700,18 @@ window.__ModuleLoader__.load({
           ? h(
               'div',
               {
-                key: 'card',
-                id: 'dsb-card',
-                className: 'dsb-card',
-                role: 'region',
-                'aria-label': t('title'),
+                key: 'popover',
+                className: `dsb-popover dsb-${popover.placement}`,
               },
+              h(
+                'div',
+                {
+                  id: 'dsb-card',
+                  className: 'dsb-card',
+                  style: { maxHeight: popover.maxHeight },
+                  role: 'region',
+                  'aria-label': t('title'),
+                },
               h(
                 'div',
                 { className: 'dsb-head' },
@@ -874,7 +923,8 @@ window.__ModuleLoader__.load({
                     notice.text,
                   )
                 : null,
-              h('div', { className: 'dsb-foot' }, t('footer')),
+                h('div', { className: 'dsb-foot' }, t('footer')),
+              ),
             )
           : null,
       );

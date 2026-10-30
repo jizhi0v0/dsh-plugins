@@ -1,6 +1,6 @@
 {
   "name": "dsh-deepseek-balance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "在 DSH 输入框下方显示 DeepSeek 官方 API 的账户余额与可用状态。 · Shows DeepSeek official API balance and availability under the composer.",

@@ -17,7 +17,7 @@ DSH → **Plugins** → **Add plugin**，粘贴上表的 spec，安装后点 **E
 DSH 的插件安装底层用 pnpm，`#path:` 是 pnpm 安装 Git monorepo 子目录的语法。固定版本可以写成：
 
 ```text
-https://github.com/jizhi0v0/dsh-plugins.git#v0.1.0&path:/packages/deepseek-balance
+https://github.com/jizhi0v0/dsh-plugins.git#v0.1.1&path:/packages/deepseek-balance
 ```
 
 ## 开发
