@@ -9,9 +9,12 @@ import {
   claudeConfigDir,
   createToolDefinitions,
   findRepoRoot,
+  findRepoRootSync,
+  memoryIndexText,
   parseMemoryFile,
   projectSlug,
   resolveMemoryProject,
+  resolveMemoryProjectSync,
   sessionCwd,
 } from '../index.js'
 
@@ -59,13 +62,52 @@ after(async () => {
 // ---------------------------------------------------------------------------
 
 let cachedTools
-function tools() {
+let cachedContexts
+let cachedSections
+function harness() {
   if (cachedTools === undefined) {
     const captured = []
-    apply({ tools: { register: (definition) => { captured.push(definition); return () => {} } }, get: () => undefined })
+    const contexts = []
+    const sections = []
+    const ctx = {
+      tools: {
+        register: (definition) => {
+          captured.push(definition)
+          return () => {}
+        },
+      },
+      effect: (callback) => callback(),
+      systemPrompt: {
+        section: (section) => {
+          sections.push(section)
+          return () => {}
+        },
+        context: (context) => {
+          contexts.push(context)
+          return () => {}
+        },
+      },
+      get: () => undefined,
+      inject: (_services, callback) => callback(ctx),
+    }
+    apply(ctx)
     cachedTools = captured
+    cachedContexts = contexts
+    cachedSections = sections
   }
-  return cachedTools
+  return { tools: cachedTools, contexts: cachedContexts, sections: cachedSections }
+}
+
+function tools() {
+  return harness().tools
+}
+
+function contexts() {
+  return harness().contexts
+}
+
+function sections() {
+  return harness().sections
 }
 
 function tool(name) {
@@ -181,6 +223,121 @@ test('resolveMemoryProject prefers the repo root and falls back with an expected
   const missing = await resolveMemoryProject(unmanaged, configDir)
   assert.equal(missing.exists, false)
   assert.equal(missing.memoryDir, path.join(configDir, 'projects', projectSlug(unmanaged), 'memory'))
+})
+
+test('findRepoRootSync matches the async resolver for repos and worktrees', async () => {
+  const sub = path.join(repo, 'sync-src', 'deep')
+  await mkdir(sub, { recursive: true })
+  assert.equal(findRepoRootSync(sub), repo)
+
+  const main = path.join(root, 'sync-wt-main')
+  await mkdir(path.join(main, '.git', 'worktrees', 'w1'), { recursive: true })
+  const checkout = path.join(root, 'sync-wt-checkout')
+  await mkdir(checkout, { recursive: true })
+  await writeFile(path.join(checkout, '.git'), `gitdir: ${path.join(main, '.git', 'worktrees', 'w1')}\n`)
+  assert.equal(findRepoRootSync(checkout), main)
+
+  assert.equal(findRepoRootSync(path.join(root, 'sync-no-repo')), null)
+})
+
+test('resolveMemoryProjectSync resolves the same worktree memory as the async version', async () => {
+  const main = path.join(root, 'sync-project-main')
+  await mkdir(path.join(main, '.git', 'worktrees', 'w1'), { recursive: true })
+  const wtMemoryDir = path.join(configDir, 'projects', projectSlug(main), 'memory')
+  await mkdir(wtMemoryDir, { recursive: true })
+  await writeFile(path.join(wtMemoryDir, 'wt.md'), '# wt\n\nsync worktree memory\n')
+
+  const checkout = path.join(root, 'sync-project-checkout')
+  await mkdir(checkout, { recursive: true })
+  await writeFile(path.join(checkout, '.git'), `gitdir: ${path.join(main, '.git', 'worktrees', 'w1')}\n`)
+
+  const project = resolveMemoryProjectSync(checkout, configDir)
+  assert.equal(project.exists, true)
+  assert.equal(project.root, main)
+  assert.equal(project.memoryDir, wtMemoryDir)
+})
+
+test('memoryIndexText renders the git-root MEMORY.md index for a subdirectory', async () => {
+  const sub = path.join(repo, 'index-src', 'deep')
+  await mkdir(sub, { recursive: true })
+  const text = memoryIndexText(sub, configDir)
+  assert.match(text, /Claude memory index for /)
+  assert.match(text, /Check whether an entry below is relevant/)
+  assert.match(text, /memory dir: /)
+  assert.match(text, /deploy-notes/)
+  assert.match(text, /发版流程/)
+  assert.match(text, /evidence about the past/)
+  assert.match(text, /Entry links are relative to /)
+  assert.match(text, /claude_memory_read with "/)
+  assert.match(text, /claude_memory_search/)
+})
+
+test('memoryIndexText returns empty without a memory dir or index', async () => {
+  const loose = path.join(root, 'index-loose')
+  await mkdir(loose, { recursive: true })
+  assert.equal(memoryIndexText(loose, configDir), '')
+
+  const withoutIndex = path.join(root, 'index-without-index')
+  await mkdir(path.join(withoutIndex, '.git'), { recursive: true })
+  await mkdir(path.join(configDir, 'projects', projectSlug(withoutIndex), 'memory'), { recursive: true })
+  assert.equal(memoryIndexText(withoutIndex, configDir), '')
+})
+
+test('memoryIndexText bounds long indexes at a line boundary', async () => {
+  const longRepo = path.join(root, 'index-long-repo')
+  await mkdir(path.join(longRepo, '.git'), { recursive: true })
+  const longMemoryDir = path.join(configDir, 'projects', projectSlug(longRepo), 'memory')
+  await mkdir(longMemoryDir, { recursive: true })
+  const longBody = Array.from({ length: 80 }, (_, i) => `- entry ${i} ${'x'.repeat(80)}`).join('\n')
+  await writeFile(path.join(longMemoryDir, 'MEMORY.md'), longBody)
+
+  const text = memoryIndexText(longRepo, configDir)
+  assert.match(text, /index truncated to 4000 characters/)
+  assert.ok(text.length < longBody.length)
+  assert.match(text, /- entry 0 /)
+  assert.doesNotMatch(text, /- entry 79 /)
+})
+
+test('memoryIndexText does not split a surrogate pair when hard-cutting', async () => {
+  const emojiRepo = path.join(root, 'index-emoji-repo')
+  await mkdir(path.join(emojiRepo, '.git'), { recursive: true })
+  const emojiMemoryDir = path.join(configDir, 'projects', projectSlug(emojiRepo), 'memory')
+  await mkdir(emojiMemoryDir, { recursive: true })
+  await writeFile(path.join(emojiMemoryDir, 'MEMORY.md'), `${'x'.repeat(3999)}😀${'y'.repeat(100)}`)
+
+  const text = memoryIndexText(emojiRepo, configDir)
+  assert.match(text, /😀/)
+  assert.doesNotMatch(text, /\uFFFD/)
+  assert.match(text, /index truncated to 4000 characters/)
+})
+
+test('memoryIndexText refreshes when MEMORY.md changes', async () => {
+  const cacheRepo = path.join(root, 'index-cache-repo')
+  await mkdir(path.join(cacheRepo, '.git'), { recursive: true })
+  const cacheMemoryDir = path.join(configDir, 'projects', projectSlug(cacheRepo), 'memory')
+  await mkdir(cacheMemoryDir, { recursive: true })
+  const indexFile = path.join(cacheMemoryDir, 'MEMORY.md')
+
+  await writeFile(indexFile, '- old entry\n')
+  assert.match(memoryIndexText(cacheRepo, configDir), /old entry/)
+
+  await writeFile(indexFile, '- new entry with a different length\n')
+  const refreshed = memoryIndexText(cacheRepo, configDir)
+  assert.match(refreshed, /new entry/)
+  assert.doesNotMatch(refreshed, /old entry/)
+})
+
+test('apply registers the auto-index context instead of a prompt section', () => {
+  assert.equal(sections().length, 0)
+  const [context] = contexts()
+  assert.equal(context.name, 'claude-memory:index')
+  assert.equal(context.order, 250)
+  assert.equal(context.interpolate, false)
+  assert.equal(typeof context.text, 'function')
+
+  const text = context.text(execAt(path.join(repo, 'index-src')))
+  assert.match(text, /deploy-notes/)
+  assert.equal(context.text({}), '')
 })
 
 test('parseMemoryFile reads frontmatter and falls back gracefully', () => {

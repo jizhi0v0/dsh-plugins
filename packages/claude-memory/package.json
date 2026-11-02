@@ -1,6 +1,6 @@
 {
   "name": "dsh-claude-memory",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "type": "module",
   "description": "让 DSH 列出、搜索并读取 Claude Code 的记忆（auto memory、CLAUDE.md、rules）。 · Lets DSH list, search and read Claude Code memory (auto memory, CLAUDE.md, rules).",
